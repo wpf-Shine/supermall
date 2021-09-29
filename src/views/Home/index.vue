@@ -3,15 +3,17 @@
     <nav-bar class="nav-home">
       <div slot="nav-center">购物街</div>
     </nav-bar>
-    <home-swiper :banners="banners"></home-swiper>
-    <recommonend-view :recommends="recommends"></recommonend-view>
-    <feature-view />
-    <tab-control
-      class="tab-control"
-      :titles="titles"
-      @tabClick="tabClick"
-    ></tab-control>
-    <goods-list :goods="showGoods" />
+    <scroll class="content">
+      <home-swiper :banners="banners"></home-swiper>
+      <recommonend-view :recommends="recommends"></recommonend-view>
+      <feature-view />
+      <tab-control
+        class="tab-control"
+        :titles="titles"
+        @tabClick="tabClick"
+      ></tab-control>
+      <goods-list :goods="showGoods" />
+    </scroll>
   </div>
 </template>
 
@@ -21,6 +23,7 @@ import RecommonendView from "./childComps/RecommendView";
 import FeatureView from "./childComps/FeatureView";
 
 import NavBar from "components/common/navbar/NavBar";
+import Scroll from "components/common/scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 
@@ -48,6 +51,7 @@ export default {
     FeatureView,
     TabControl,
     GoodsList,
+    Scroll,
   },
   created() {
     // 请求多个数据
@@ -99,9 +103,11 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #home {
-  padding-top: 44px;
+  height: 100vh;
+  /* padding-top: 44px; */
+  position: relative;
 }
 .nav-home {
   position: fixed;
@@ -117,4 +123,17 @@ export default {
   top: 44px;
   z-index: 1000;
 }
+.content {
+  position: absolute;
+  top: 44px;
+  bottom: 49px;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+}
+/* .content {
+  height: calc(100% - 49px - 44px);
+  overflow: hidden;
+  margin-top: 44px;
+} */
 </style>
