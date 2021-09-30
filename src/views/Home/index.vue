@@ -3,7 +3,12 @@
     <nav-bar class="nav-home">
       <div slot="nav-center">购物街</div>
     </nav-bar>
-    <scroll class="content">
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="contentScroll"
+    >
       <home-swiper :banners="banners"></home-swiper>
       <recommonend-view :recommends="recommends"></recommonend-view>
       <feature-view />
@@ -14,6 +19,7 @@
       ></tab-control>
       <goods-list :goods="showGoods" />
     </scroll>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -26,6 +32,7 @@ import NavBar from "components/common/navbar/NavBar";
 import Scroll from "components/common/scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
+import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "api/home";
 
@@ -42,6 +49,7 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
+      isShowBackTop: false,
     };
   },
   components: {
@@ -52,6 +60,7 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
+    BackTop,
   },
   created() {
     // 请求多个数据
@@ -82,6 +91,12 @@ export default {
           this.currentType = "sell";
           break;
       }
+    },
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0, 1000);
+    },
+    contentScroll(position) {
+      this.isShowBackTop = position.y < -1000;
     },
     /**
      * 网络请求相关的方法
@@ -119,7 +134,7 @@ export default {
   z-index: 1000;
 }
 .tab-control {
-  position: sticky;
+  /* position: sticky; */
   top: 44px;
   z-index: 1000;
 }
