@@ -20,20 +20,35 @@ export default {
       type: Number,
       default: 0,
     },
+    pullUpLoad: {
+      type: Boolean,
+      default: false,
+    },
   },
   mounted() {
     this.scroll = new BScroll(this.$refs.wrapper, {
       probeType: this.probeType,
-      pullUpLoad: true,
+      pullUpLoad: this.pullUpLoad,
       click: true,
     });
     this.scroll.on("scroll", (position) => {
       this.$emit("scroll", position);
     });
+    if (this.probeType === 2 || this.probeType === 3) {
+      this.scroll.on("pullingUp", () => {
+        this.$emit("pullinngUp");
+      });
+    }
   },
   methods: {
     scrollTo(x, y, time) {
-      this.scroll.scrollTo(x, y, time);
+      this.scroll && this.scroll.scrollTo(x, y, time);
+    },
+    finishPullUp() {
+      this.scroll.finishPullUp();
+    },
+    refresh() {
+      this.scroll && this.scroll.refresh();
     },
   },
 };

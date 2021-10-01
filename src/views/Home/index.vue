@@ -7,16 +7,14 @@
       class="content"
       ref="scroll"
       :probe-type="3"
+      :pull-up-load="true"
       @scroll="contentScroll"
+      @pullinngUp="loadMore"
     >
       <home-swiper :banners="banners"></home-swiper>
       <recommonend-view :recommends="recommends"></recommonend-view>
       <feature-view />
-      <tab-control
-        class="tab-control"
-        :titles="titles"
-        @tabClick="tabClick"
-      ></tab-control>
+      <tab-control :titles="titles" @tabClick="tabClick"></tab-control>
       <goods-list :goods="showGoods" />
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
@@ -33,6 +31,8 @@ import Scroll from "components/common/scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import BackTop from "components/content/backTop/BackTop";
+
+import { debounce } from "common/utils";
 
 import { getHomeMultidata, getHomeGoods } from "api/home";
 
@@ -70,6 +70,15 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
+  mounted() {
+    const refresh = debounce(this.$refs.scroll.refresh, 50);
+
+    //监听item中的图片加载完成
+    this.$bus.$on("itemImageLoad", () => {
+      // this.$refs.scroll.refresh();
+      refresh();
+    });
+  },
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;
@@ -79,6 +88,7 @@ export default {
     /**
      * 事件监听相关的方法
      */
+
     tabClick(index) {
       switch (index) {
         case 0:
@@ -98,6 +108,9 @@ export default {
     contentScroll(position) {
       this.isShowBackTop = position.y < -1000;
     },
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+    },
     /**
      * 网络请求相关的方法
      */
@@ -112,6 +125,7 @@ export default {
       getHomeGoods(type, page).then((res) => {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
+        this.$refs.scroll.finishPullUp();
       });
     },
   },
@@ -131,11 +145,6 @@ export default {
   right: 0;
   background-color: var(--color-tint);
   color: #fff;
-  z-index: 1000;
-}
-.tab-control {
-  /* position: sticky; */
-  top: 44px;
   z-index: 1000;
 }
 .content {
