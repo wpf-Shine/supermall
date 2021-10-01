@@ -3,6 +3,13 @@
     <nav-bar class="nav-home">
       <div slot="nav-center">购物街</div>
     </nav-bar>
+    <tab-control
+      :titles="titles"
+      @tabClick="tabClick"
+      ref="tabControlone"
+      class="tab-control"
+      v-show="this.isTabFixed"
+    ></tab-control>
     <scroll
       class="content"
       ref="scroll"
@@ -11,10 +18,17 @@
       @scroll="contentScroll"
       @pullinngUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper
+        :banners="banners"
+        @swiperImageLoad="swiperImageLoad"
+      ></home-swiper>
       <recommonend-view :recommends="recommends"></recommonend-view>
       <feature-view />
-      <tab-control :titles="titles" @tabClick="tabClick"></tab-control>
+      <tab-control
+        :titles="titles"
+        @tabClick="tabClick"
+        ref="tabControltwo"
+      ></tab-control>
       <goods-list :goods="showGoods" />
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
@@ -50,6 +64,8 @@ export default {
       },
       currentType: "pop",
       isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
     };
   },
   components: {
@@ -101,15 +117,23 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControlone.currentIndex = index;
+      this.$refs.tabControltwo.currentIndex = index;
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 1000);
     },
     contentScroll(position) {
+      // 判断BackTop是否显示
       this.isShowBackTop = position.y < -1000;
+      // 判断tabControl是否吸顶
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     loadMore() {
       this.getHomeGoods(this.currentType);
+    },
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControltwo.$el.offsetTop;
     },
     /**
      * 网络请求相关的方法
@@ -139,13 +163,8 @@ export default {
   position: relative;
 }
 .nav-home {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
   background-color: var(--color-tint);
   color: #fff;
-  z-index: 1000;
 }
 .content {
   position: absolute;
@@ -155,9 +174,14 @@ export default {
   left: 0;
   overflow: hidden;
 }
-/* .content {
-  height: calc(100% - 49px - 44px);
-  overflow: hidden;
-  margin-top: 44px;
-} */
+.tabfixed {
+  position: fixed;
+  top: 44px;
+  right: 0;
+  left: 0;
+}
+.tab-control {
+  position: relative;
+  z-index: 10;
+}
 </style>
