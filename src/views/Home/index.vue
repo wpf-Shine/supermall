@@ -66,6 +66,7 @@ export default {
       isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
+      saveY: 0,
     };
   },
   components: {
@@ -77,6 +78,13 @@ export default {
     GoodsList,
     Scroll,
     BackTop,
+  },
+  activated() {
+    this.$refs.scroll.refresh();
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.getScrollY();
   },
   created() {
     // 请求多个数据
