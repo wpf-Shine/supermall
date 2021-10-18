@@ -9,6 +9,7 @@
         :detailInfo="detailInfo"
         @imageLoad="imageLoad"
       ></detail-goods-info>
+      <detail-param-info :goodsParam="goodsParam"></detail-param-info>
     </scroll>
   </div>
 </template>
@@ -19,10 +20,11 @@ import DetailSwiper from "./childComps/DetailSwiper";
 import DetailBaseInfo from "./childComps/DetailBaseInfo";
 import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
+import DetailParamInfo from "./childComps/DetailParamInfo";
 
 import Scroll from "components/common/scroll/Scroll";
 
-import { getDetail, Goods, Shop } from "api/detail";
+import { getDetail, Goods, Shop, GoodsParam } from "api/detail";
 export default {
   name: "Detail",
   components: {
@@ -31,6 +33,7 @@ export default {
     DetailBaseInfo,
     DetailShopInfo,
     DetailGoodsInfo,
+    DetailParamInfo,
     Scroll,
   },
   data() {
@@ -40,6 +43,7 @@ export default {
       goods: {},
       shop: {},
       detailInfo: {},
+      goodsParam: {},
     };
   },
   methods: {
@@ -54,7 +58,6 @@ export default {
       const data = res.result;
       //获取商品轮播图数据
       this.topImages = data.itemInfo.topImages;
-
       // 获取商品信息
       this.goods = new Goods(
         data.itemInfo,
@@ -63,10 +66,16 @@ export default {
       );
       //获取店铺信息
       this.shop = new Shop(data.shopInfo);
-      console.log(data);
 
       //获取商品详情
       this.detailInfo = data.detailInfo;
+
+      //获取商品参数
+      this.goodsParam = new GoodsParam(
+        data.itemParams.info,
+        data.itemParams.rule
+      );
+      console.log(this.goodsParam);
     });
   },
 };
