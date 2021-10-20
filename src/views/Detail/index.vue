@@ -10,6 +10,8 @@
         @imageLoad="imageLoad"
       ></detail-goods-info>
       <detail-param-info :goodsParam="goodsParam"></detail-param-info>
+      <detail-comment-info :commentInfo="commentInfo"></detail-comment-info>
+      <goods-list :goods="recommends"></goods-list>
     </scroll>
   </div>
 </template>
@@ -21,10 +23,14 @@ import DetailBaseInfo from "./childComps/DetailBaseInfo";
 import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
+import DetailCommentInfo from "./childComps/DetailCommentInfo";
+
+import GoodsList from "components/content/goods/GoodsList";
 
 import Scroll from "components/common/scroll/Scroll";
 
-import { getDetail, Goods, Shop, GoodsParam } from "api/detail";
+import { getDetail, Goods, Shop, GoodsParam, getRecommend } from "api/detail";
+import { itemListtenerMixin } from "common/mixin";
 export default {
   name: "Detail",
   components: {
@@ -34,8 +40,11 @@ export default {
     DetailShopInfo,
     DetailGoodsInfo,
     DetailParamInfo,
+    DetailCommentInfo,
+    GoodsList,
     Scroll,
   },
+  mixins: [itemListtenerMixin],
   data() {
     return {
       iid: null,
@@ -44,6 +53,8 @@ export default {
       shop: {},
       detailInfo: {},
       goodsParam: {},
+      commentInfo: {},
+      recommends: [],
     };
   },
   methods: {
@@ -53,7 +64,7 @@ export default {
   },
   created() {
     this.iid = this.$route.params.id;
-
+    //请求详情数据
     getDetail(this.iid).then((res) => {
       const data = res.result;
       //获取商品轮播图数据
@@ -75,8 +86,18 @@ export default {
         data.itemParams.info,
         data.itemParams.rule
       );
-      console.log(this.goodsParam);
+      if (data.rate.cRate != 0) {
+        this.commentInfo = data.rate.list[0];
+      }
     });
+    // 请求推荐数据
+    getRecommend().then((res) => {
+      this.recommends = res.data.list;
+    });
+  },
+  mounted() {},
+  destroyed() {
+    this.$bus.$off("itemImgLoad", this.ItemImgListener);
   },
 };
 </script>

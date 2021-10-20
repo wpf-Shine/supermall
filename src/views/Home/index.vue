@@ -50,6 +50,8 @@ import { debounce } from "common/utils";
 
 import { getHomeMultidata, getHomeGoods } from "api/home";
 
+import { itemListtenerMixin } from "common/mixin";
+
 export default {
   name: "Home",
   data() {
@@ -79,12 +81,15 @@ export default {
     Scroll,
     BackTop,
   },
+  mixins: [itemListtenerMixin],
   activated() {
     this.$refs.scroll.refresh();
     this.$refs.scroll.scrollTo(0, this.saveY, 0);
   },
   deactivated() {
     this.saveY = this.$refs.scroll.getScrollY();
+    //取消全局事件的监听
+    this.$bus.$off("itemImgLoad", this.ItemImgListener);
   },
   created() {
     // 请求多个数据
@@ -94,15 +99,7 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
-  mounted() {
-    const refresh = debounce(this.$refs.scroll.refresh, 50);
-
-    //监听item中的图片加载完成
-    this.$bus.$on("itemImageLoad", () => {
-      // this.$refs.scroll.refresh();
-      refresh();
-    });
-  },
+  mounted() {},
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;

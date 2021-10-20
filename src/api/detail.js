@@ -41,3 +41,13 @@ export class GoodsParam {
     this.sizes = rule.tables;
   }
 }
+
+/**
+ * 请求推荐信息
+ * @returns {AxiosPromise}
+ */
+export function getRecommend() {
+  return request({
+    url: '/recommend'
+  })
+}
