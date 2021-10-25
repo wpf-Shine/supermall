@@ -1,7 +1,11 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar
+      class="detail-nav"
+      @titleClick="titleClick"
+      ref="nav"
+    ></detail-nav-bar>
+    <scroll class="content" ref="scroll" :probeType="1" @scroll="contentScroll">
       <detail-swiper :topImages="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
@@ -9,10 +13,17 @@
         :detailInfo="detailInfo"
         @imageLoad="imageLoad"
       ></detail-goods-info>
-      <detail-param-info :goodsParam="goodsParam"></detail-param-info>
-      <detail-comment-info :commentInfo="commentInfo"></detail-comment-info>
-      <goods-list :goods="recommends"></goods-list>
+      <detail-param-info
+        :goodsParam="goodsParam"
+        ref="params"
+      ></detail-param-info>
+      <detail-comment-info
+        :commentInfo="commentInfo"
+        ref="comment"
+      ></detail-comment-info>
+      <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
+    <detail-bottom-bar @addToCart="addCart"></detail-bottom-bar>
   </div>
 </template>
 
@@ -24,13 +35,14 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import DetailBottomBar from "./childComps/DetailBottomBar.vue";
 
 import GoodsList from "components/content/goods/GoodsList";
 
 import Scroll from "components/common/scroll/Scroll";
 
 import { getDetail, Goods, Shop, GoodsParam, getRecommend } from "api/detail";
-import { itemListtenerMixin } from "common/mixin";
+import { itemListtenerMixin, backTopMixin } from "common/mixin";
 export default {
   name: "Detail",
   components: {
@@ -41,10 +53,11 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
     GoodsList,
     Scroll,
   },
-  mixins: [itemListtenerMixin],
+  mixins: [itemListtenerMixin, backTopMixin],
   data() {
     return {
       iid: null,
@@ -55,11 +68,38 @@ export default {
       goodsParam: {},
       commentInfo: {},
       recommends: [],
+      themeTopY: [],
     };
   },
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh();
+      this.themeTopY.push(0);
+      this.themeTopY.push(this.$refs.params.$el.offsetTop);
+      this.themeTopY.push(this.$refs.comment.$el.offsetTop);
+      this.themeTopY.push(this.$refs.recommend.$el.offsetTop);
+    },
+    titleClick(index) {
+      this.$refs.scroll.scrollTo(0, -this.themeTopY[index], 1000);
+    },
+    contentScroll(position) {
+      let positionY = -position.y;
+      let length = this.themeTopY.length;
+      this.isShowBackTop = positionY < 1000;
+      for (let i = 0; i < length; i++) {
+        if (
+          (i < length - 1 &&
+            this.positionY > this.themeTopY[i] &&
+            positionY < this.themeTopY[i + 1]) ||
+          (i == length - 1 && positionY > this.themeTopY[i])
+        ) {
+          console.log(i);
+          this.$refs.nav.currentIndex = i;
+        }
+      }
+    },
+    addCart() {
+      console.log(111);
     },
   },
   created() {
@@ -109,7 +149,7 @@ export default {
   background-color: #fff;
 }
 .content {
-  height: calc(100vh - 44px);
+  height: calc(100vh - 44px - 58px);
 }
 .detail-nav {
   position: relative;

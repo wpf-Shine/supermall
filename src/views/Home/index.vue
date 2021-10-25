@@ -44,13 +44,10 @@ import NavBar from "components/common/navbar/NavBar";
 import Scroll from "components/common/scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
-import BackTop from "components/content/backTop/BackTop";
-
-import { debounce } from "common/utils";
 
 import { getHomeMultidata, getHomeGoods } from "api/home";
 
-import { itemListtenerMixin } from "common/mixin";
+import { itemListtenerMixin, backTopMixin } from "common/mixin";
 
 export default {
   name: "Home",
@@ -65,7 +62,6 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
-      isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
@@ -79,9 +75,8 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
   },
-  mixins: [itemListtenerMixin],
+  mixins: [itemListtenerMixin, backTopMixin],
   activated() {
     this.$refs.scroll.refresh();
     this.$refs.scroll.scrollTo(0, this.saveY, 0);
@@ -124,9 +119,6 @@ export default {
       }
       this.$refs.tabControlone.currentIndex = index;
       this.$refs.tabControltwo.currentIndex = index;
-    },
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0, 1000);
     },
     contentScroll(position) {
       // 判断BackTop是否显示
